@@ -1,1 +1,1 @@
-# r-datascience
+# datascience-in-r

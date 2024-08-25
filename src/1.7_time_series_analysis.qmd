@@ -1,0 +1,153 @@
+---
+title: "1.7 Time Series Analysis"
+format: html
+editor: visual
+include-before: |
+  <div style="text-align: center;">
+    <img src="images/department_logo.png" width="169" />
+    <img src="images/ioa_logo.png" width="122" />
+    <img src="images/petra_logo.png" width="52" />
+  </div>
+---
+
+### 1. **Introduction to Time Series Analysis in R**
+
+-   **Loading Time Series Data**
+
+    ```{r}
+    data("AirPassengers")      
+    ts_data <- AirPassengers      
+    class(ts_data)  # Check the class of the data
+    ```
+
+-   **Plotting Time Series**
+
+    `autoplot()` from the `ggplot2` package isn't directly compatible with objects of class `<ts>`. Instead, you can use `autoplot()` from the `forecast` package or convert the time series data to a `data.frame` before plotting. Here’s how you can handle this:
+
+```{r}
+install.packages("forecast")
+```
+
+```{r}
+library(forecast)
+library(ggplot2)
+autoplot(ts_data) + ggtitle("AirPassengers Time Series Data") + xlab("Year") + ylab("Number of Passengers")
+```
+
+### 2. **Decomposing Time Series**
+
+-   **Decomposition using `decompose()`**
+
+    ```{r}
+    decomposed_ts <- decompose(ts_data)      
+    plot(decomposed_ts)
+    ```
+
+-   **Decomposition using `ggplot2`**
+
+    ```{r}
+    autoplot(decompose(ts_data)) + ggtitle("Decomposed AirPassengers Data")
+    ```
+
+### 3. **Smoothing Techniques**
+
+-   **Moving Averages**
+
+    ```{r}
+    library(zoo)      
+    ts_smoothed <- rollmean(ts_data, k = 12, align = "right")      
+
+    autoplot(ts_smoothed, series = "Smoothed") + autolayer(ts_data, series = "Original") +  ggtitle("Smoothed Time Series with Moving Average") +   xlab("Year") + ylab("Number of Passengers")
+    ```
+
+-   **Exponential Smoothing**
+
+    ```{r}
+    ts_ets <- ets(ts_data)      
+    autoplot(forecast(ts_ets)) + ggtitle("Forecast using Exponential Smoothing")
+    ```
+
+### 4. **Stationarity and Differencing**
+
+-   **Checking Stationarity**
+
+    ```{r}
+    library(tseries)      
+    adf.test(ts_data)  # Augmented Dickey-Fuller Test
+    ```
+
+-   **Differencing**
+
+    ```{r}
+    ts_diff <- diff(ts_data)      
+    autoplot(ts_diff) + ggtitle("Differenced AirPassengers Data") + xlab("Year") + ylab("Differenced Number of Passengers")
+    ```
+
+### 5. **Autocorrelation and Partial Autocorrelation**
+
+-   **ACF and PACF Plots**
+
+    ```{r}
+    autoplot(acf(ts_data, plot = FALSE)) +
+      ggtitle("Autocorrelation Function (ACF) Plot")
+
+    autoplot(pacf(ts_data, plot = FALSE)) +
+      ggtitle("Partial Autocorrelation Function (PACF) Plot")
+    ```
+
+### 6. **ARIMA Modeling**
+
+-   **Fitting an ARIMA Model**
+
+    ```{r}
+    library(forecast)      
+    ts_arima <- auto.arima(ts_data)      
+    summary(ts_arima)
+    ```
+
+-   **Diagnostic Checking**
+
+    ```{r}
+    checkresiduals(ts_arima)
+    ```
+
+### 7. **Forecasting**
+
+-   **Generating Forecasts**
+
+    ```{r}
+    ts_forecast <- forecast(ts_arima, h = 24)  # Forecasting next 24 periods
+    autoplot(ts_forecast) + ggtitle("Forecasted AirPassengers Data") +  xlab("Year") + ylab("Number of Passengers")
+    ```
+
+### 8. **Advanced Topic: Seasonal ARIMA (SARIMA)**
+
+-   **Fitting a SARIMA Model**
+
+    ```{r}
+    ts_sarima <- auto.arima(ts_data, seasonal = TRUE)      
+    summary(ts_sarima)      
+    ts_forecast_sarima <- forecast(ts_sarima, h = 24)      
+    autoplot(ts_forecast_sarima) +  ggtitle("SARIMA Forecast for AirPassengers Data")
+    ```
+
+### 9. **Practical Application**
+
+-   **Case Study Analysis** Assign a dataset like `nottem` or any other real-world dataset relevant to your course. Let students:
+    1.  **Plot and explore the data**.
+    2.  **Decompose the series**.
+    3.  **Fit ARIMA models**.
+    4.  **Generate forecasts**.
+    5.  **Present findings**.
+
+### 10. **Assignment**
+
+-   **Project**: Analyze the monthly sunspot numbers dataset:
+
+    ```{r}
+    data("sunspot.month")      
+    sunspot_ts <- ts(sunspot.month, start = c(1749, 1), frequency = 12)
+    data("sunsp.month")      
+    sunspot_ts <- ts(sunspot.month, start = c(1749, 1), frequency = 12)
+    sunspot_ts
+    ```
